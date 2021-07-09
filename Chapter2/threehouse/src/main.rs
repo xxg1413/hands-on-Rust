@@ -3,20 +3,43 @@ use std::io::stdin;
 #[derive(Debug)]
 struct Visitor {
     name: String,
-    greeting: String,
+    action: VisitorAction,
+    age: i8,
+}
+
+#[derive(Debug)]
+enum VisitorAction {
+    Accept,
+    AcceptWithNote { note: String },
+    Refuse,
+    Probation,
 }
 
 
+
 impl Visitor {
-    fn new(name: &str, greeting: &str) -> Self {
+    fn new(name: &str, action: VisitorAction, age: i8) -> Self {
         Self {
             name: name.to_lowercase(),
-            greeting: greeting.to_string(),
+            action,
+            age
         }
     }
 
     fn greet_visitor(&self) {
-        println!("{}",self.greeting);
+        match &self.action {
+            VisitorAction::Accept => println!("欢迎来到组织,{}",self.name),
+            VisitorAction::AcceptWithNote { note} => {
+                println!("你好，{}，欢迎你", self.name);
+                println!("{}", note);
+                if self.age < 21 {
+                    println!("{},小朋友，不要来这里玩", self.name);
+                }
+            },
+
+            VisitorAction::Probation => println!("你已经是一个预备成员了，{}",self.name),
+            VisitorAction::Refuse => println!("你不允许加入组织，{}", self.name),
+        }
     }
 }
 
@@ -36,9 +59,11 @@ fn main() {
 
     //let visitor_list = ["pxiaoer","test1","test2","测试3"];
     let mut visitor_list = vec![
-        Visitor::new("pxiaoer", "你真的很优秀，P小二"),
-        Visitor::new("test1","这只是一个测试"),
-        Visitor::new("测试2","这又是一个测试，不要太难过"),
+        Visitor::new("pxiaoer", VisitorAction::Accept,45),
+        Visitor::new("test1",VisitorAction::AcceptWithNote {
+            note: String::from("这是一个测试id")
+        }, 15),
+        Visitor::new("测试2",VisitorAction::Refuse, 30),
     ];
 
     loop {
@@ -56,7 +81,9 @@ fn main() {
                     break;
                 } else {
                     println!("{},好像是新朋友",name);
-                    visitor_list.push(Visitor::new(&name, "新朋友"));
+                    visitor_list.push(Visitor::new(&name, VisitorAction::AcceptWithNote{
+                        note: String::from("这是一个新朋友")},0)
+                    );
                 }
             }
         }
